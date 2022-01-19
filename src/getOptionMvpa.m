@@ -1,6 +1,6 @@
 % (C) Copyright 2019 CPP BIDS SPM-pipeline developpers
 
-function opt = getOptionBlockMvpa()
+function opt = getOptionMvpa()
   % returns a structure that contains the options chosen by the user to run
   % decoding with cosmo-mvpa.
 
@@ -47,7 +47,12 @@ function opt = getOptionBlockMvpa()
   % we cannot save opt with opt.mvpa, it crashes
 
   %% mvpa options
-
+  
+  % set cosmo mvpa structure
+  opt.mvpa.condLabelNb = [1 2];
+  opt.mvpa.condLabelName = {'simple', 'complex'};
+  opt.mvpa.decodingCondition = 'simpleVscomplex';
+  
   % define the 4D maps to be used
   opt.funcFWHM = 2;
 

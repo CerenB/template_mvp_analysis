@@ -2,7 +2,7 @@ function accu = calculateMvpa(opt, roiSource)
 
 % main function which loops through masks and subjects to calculate the
 % decoding accuracies for given conditions.
-% dependant on SPM + CPP_SPM and CosMoMvpa toolboxes
+% dependant on SPM and CosMoMvpa toolboxes
 % the output is compatible for R visualisation, it gives .csv file as well
 % as .mat file 
 
@@ -28,13 +28,6 @@ function accu = calculateMvpa(opt, roiSource)
                           '_s', num2str(funcFWHM), ...
                           '_ratio', num2str(opt.mvpa.ratioToKeep ), ...
                           '_', datestr(now, 'yyyymmddHHMM'), '.csv']);
-
-  %% MVPA options
-
-  % set cosmo mvpa structure
-  condLabelNb = [1 2];
-  condLabelName = {'simple', 'complex'};
-  decodingCondition = 'simpleVscomplex';
 
   %% let's get going!
 
@@ -89,7 +82,7 @@ function accu = calculateMvpa(opt, roiSource)
         ds = cosmo_slice(ds, ~zeroMask, 2);
 
         % set cosmo structure
-        ds = setCosmoStructure(opt, ds, condLabelNb, condLabelName);
+        ds = setCosmoStructure(opt, ds, opt.mvpa.condLabelNb, opt.mvpa.condLabelName);
 
         % slice the ds according to your targers (choose your
         % train-test conditions
@@ -103,15 +96,6 @@ function accu = calculateMvpa(opt, roiSource)
 
         % partitioning, for test and training : cross validation
         partitions = cosmo_nfold_partitioner(ds);
-
-        % define the voxel number for feature selection
-        % set ratio to keep depending on the ROI dimension
-        % if SMA, double the voxel number
-%         if strcmpi(maskLabel{iMask}, 'sma')
-%            opt.mvpa.feature_selection_ratio_to_keep = 2 * opt.mvpa.ratioToKeep;
-%         else
-%            opt.mvpa.feature_selection_ratio_to_keep = opt.mvpa.ratioToKeep;
-%         end
         
         % use the ratios, instead of the voxel number:
         opt.mvpa.feature_selection_ratio_to_keep = opt.mvpa.ratioToKeep;
@@ -123,43 +107,18 @@ function accu = calculateMvpa(opt, roiSource)
         
         
 
-        %%
-
-%         ratios_to_keep = .05:.05:.95;
-%         nratios = numel(ratios_to_keep);
-% 
-%         accs = zeros(nratios, 1);
-% 
-%         for k = 1:nratios
-%           opt.mvpa.feature_selection_ratio_to_keep = ratios_to_keep(k);
-% 
-%           [pred, acc] = cosmo_crossvalidate(ds, ...
-%                                             @cosmo_meta_feature_selection_classifier, ...
-%                                             partitions, opt.mvpa);
-%           accs(k) = acc;
-%         end
-% 
-%         plot(ratios_to_keep, accs);
-%         xlabel('ratio of selected feaures');
-%         ylabel('classification accuracy');
-% 
-%         accuracy = max(accs);
-%         maxRatio = ratios_to_keep(accs == max(accs));
-
         %% store output
         accu(count).subID = subID;
         accu(count).mask = opt.maskLabel{iMask};
         accu(count).maskVoxNb = maskVoxel;
         accu(count).choosenVoxNb = opt.mvpa.feature_selection_ratio_to_keep;
-       % accu(count).choosenVoxNb = round(maskVoxel * maxRatio);
-       % accu(count).maxRatio = maxRatio;
         accu(count).image = opt.mvpa.map4D{iImage};
         accu(count).ffxSmooth = funcFWHM;
         accu(count).accuracy = accuracy;
         accu(count).prediction = pred;
         accu(count).imagePath = image;
         accu(count).roiSource = roiSource;
-        accu(count).decodingCondition = decodingCondition;
+        accu(count).decodingCondition = opt.mvpa.decodingCondition;
 
         %% PERMUTATION PART
         if opt.mvpa.permutate  == 1

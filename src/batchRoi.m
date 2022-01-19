@@ -7,7 +7,7 @@ clc;
   addpath(genpath('/Users/battal/Documents/MATLAB/spm12'));
   
   % add cpp repo
-  run ../../rhythmBlock_fMRI_analysis/lib/CPP_BIDS_SPM_pipeline/initCppSpm.m;
+  run ../lib/CPP_SPM/initCppSpm.m;
    
   % load your options
   opt = getOptionBlockMvpa();
